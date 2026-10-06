@@ -1,0 +1,76 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default-deny global safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        (request.auth.token.email == "toolclubpk1@gmail.com" && request.auth.token.email_verified == true)
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Destinations: Public read, Admin write
+    match /destinations/{destinationId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(destinationId);
+    }
+
+    // Plans: Public read, Admin write
+    match /plans/{planId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(planId);
+    }
+
+    // Orders: Customer can read their own order, Admin can read/manage all
+    match /orders/{orderId} {
+      allow read: if isValidId(orderId) && (
+        (isSignedIn() && resource.data.customerId == request.auth.uid) ||
+        isAdmin()
+      );
+
+      allow create: if isValidId(orderId) && (
+        (isSignedIn() && request.resource.data.customerId == request.auth.uid) ||
+        isAdmin()
+      );
+
+      allow update, delete: if isAdmin() && isValidId(orderId);
+    }
+
+    // Coupons: Public list/read for checkout validation, Admin write
+    match /coupons/{couponId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(couponId);
+    }
+
+    // FAQs: Public read, Admin write
+    match /faqs/{faqId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(faqId);
+    }
+
+    // Reviews: Public read, Admin write
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(reviewId);
+    }
+
+    // Support Tickets: Anyone can create, Admin can read & manage
+    match /support_tickets/{ticketId} {
+      allow create: if isValidId(ticketId);
+      allow read, update, delete: if isAdmin() && isValidId(ticketId);
+    }
+  }
+}

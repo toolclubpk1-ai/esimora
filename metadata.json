@@ -1,0 +1,6 @@
+{
+  "name": "ESIMORA - Premium Global eSIM Marketplace",
+  "description": "Instant mobile data in 200+ destinations worldwide. No roaming fees, no physical SIM. Instant QR delivery and seamless activation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

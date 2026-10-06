@@ -1,0 +1,95 @@
+{
+  "entities": {
+    "destination": {
+      "title": "Destination",
+      "description": "Travel destination metadata and country cellular coverage details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "code": { "type": "string" },
+        "flag": { "type": "string" },
+        "region": { "type": "string" },
+        "startingPrice": { "type": "number" },
+        "description": { "type": "string" },
+        "popular": { "type": "boolean" },
+        "featured": { "type": "boolean" }
+      },
+      "required": ["id", "name", "slug", "region", "startingPrice"]
+    },
+    "plan": {
+      "title": "ESIMPlan",
+      "description": "eSIM data package specifications, pricing, and validity duration",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "destinationId": { "type": "string" },
+        "destinationName": { "type": "string" },
+        "name": { "type": "string" },
+        "data": { "type": "string" },
+        "validityDays": { "type": "number" },
+        "price": { "type": "number" },
+        "currency": { "type": "string" },
+        "isUnlimited": { "type": "boolean" },
+        "speed": { "type": "string" },
+        "hotspot": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["active", "inactive"] }
+      },
+      "required": ["id", "destinationId", "name", "data", "validityDays", "price", "status"]
+    },
+    "order": {
+      "title": "Order",
+      "description": "Customer purchase transaction record and cellular activation details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "orderNumber": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerEmail": { "type": "string" },
+        "planId": { "type": "string" },
+        "amount": { "type": "number" },
+        "currency": { "type": "string" },
+        "orderStatus": { "type": "string", "enum": ["pending", "paid", "delivered", "activated", "cancelled", "refunded"] },
+        "paymentStatus": { "type": "string", "enum": ["pending", "paid", "failed", "refunded"] },
+        "iccid": { "type": "string" },
+        "lpaActivationCode": { "type": "string" },
+        "purchaseDate": { "type": "string" }
+      },
+      "required": ["id", "orderNumber", "customerId", "customerEmail", "planId", "amount", "orderStatus"]
+    },
+    "coupon": {
+      "title": "Coupon",
+      "description": "Promotional discount codes and validation rules",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string" },
+        "discountType": { "type": "string", "enum": ["percentage", "fixed"] },
+        "value": { "type": "number" },
+        "minOrder": { "type": "number" },
+        "expiryDate": { "type": "string" },
+        "isActive": { "type": "boolean" }
+      },
+      "required": ["id", "code", "discountType", "value", "isActive"]
+    }
+  },
+  "firestore": {
+    "/destinations/{destinationId}": {
+      "schema": { "$ref": "destination" },
+      "description": "Public catalog of travel destinations"
+    },
+    "/plans/{planId}": {
+      "schema": { "$ref": "plan" },
+      "description": "Public catalog of eSIM packages and pricing"
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "order" },
+      "description": "Private customer purchase records with customer-only and admin-only access"
+    },
+    "/coupons/{couponId}": {
+      "schema": { "$ref": "coupon" },
+      "description": "Promotional codes managed by marketplace administrators"
+    }
+  }
+}
